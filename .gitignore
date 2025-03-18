@@ -1,0 +1,10 @@
+/__pycache__
+/cvat
+/.idea
+/frames
+/inference
+/output_annotations
+/venv
+*.mp4
+yolov8x.pt
+ProjectReport.docx
