@@ -1,6 +1,4 @@
 import cv2
-import os
-import xml.etree.ElementTree as ET
 import supervision as sv
 
 from model import ModelProxy, YOLO_MODEL_TYPE

@@ -11,6 +11,7 @@ TARGET_VIDEO_PATH = "m6_motorway_trim_result.mp4"
 IOU_THRESHOLD = 0.7
 CONFIDENCE_THRESHOLD = 0.5
 SPEED_LIMIT = 100
+YOUTUBE_VIDEO_URL = "https://www.youtube.com/watch?v=zFD1yUlct18"
 
 
 TARGET = np.array(

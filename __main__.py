@@ -5,10 +5,18 @@ import cv2
 import supervision as sv
 from speed_estimator import SpeedEstimator
 from model import ModelProxy, YOLO_MODEL_TYPE, FASTER_RCNN_MODEL_TYPE, RETINA_NET_MODEL_TYPE
-from main_constants import SOURCE_VIDEO_PATH, SOURCE, TARGET, CONFIDENCE_THRESHOLD, TARGET_VIDEO_PATH, IOU_THRESHOLD
+from main_constants import YOUTUBE_VIDEO_URL, SOURCE_VIDEO_PATH, SOURCE, TARGET, CONFIDENCE_THRESHOLD, TARGET_VIDEO_PATH, IOU_THRESHOLD
 import math
-
+import yt_dlp
 if __name__ == "__main__":
+
+    options = {
+        'format': 'bestvideo',  # Downloads only the best video (no audio)
+        'outtmpl': SOURCE_VIDEO_PATH,  # Save with video title
+    }
+
+    with yt_dlp.YoutubeDL(options) as ydl:
+        ydl.download([YOUTUBE_VIDEO_URL])
 
     model_types = {YOLO_MODEL_TYPE, FASTER_RCNN_MODEL_TYPE, RETINA_NET_MODEL_TYPE}
 
