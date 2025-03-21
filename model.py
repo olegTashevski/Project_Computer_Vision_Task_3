@@ -11,12 +11,12 @@ RETINA_NET_MODEL_TYPE = "RETINA_NET"
 class ModelProxy:
     def __init__(self, model_type:str):
         self.model_type = model_type
-        if self.model_type == "YOLO":
+        if self.model_type == YOLO_MODEL_TYPE:
             self.model = YOLO("yolov8x.pt")
         else:
-            if self.model_type == "FASTER-RCNN":
+            if self.model_type == FASTER_RCNN_MODEL_TYPE:
                 self.model = detection.fasterrcnn_resnet50_fpn(pretrained=True)
-            elif self.model_type == "RetinaNet":
+            elif self.model_type == RETINA_NET_MODEL_TYPE:
                 self.model = detection.retinanet_resnet50_fpn(pretrained=True)
             else:
                 raise Exception("Model type not supported")

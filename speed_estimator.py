@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 import math
 import supervision as sv
+from main_constants import SPEED_LIMIT
+
 MPS_TO_KPH = 3.6
 class SpeedEstimator:
     def __init__(self, fps, source, target):
@@ -24,8 +26,11 @@ class SpeedEstimator:
                 dx, dy = abs(x - last_xy[0]), abs(y - last_xy[1])
                 ds = math.sqrt(dx**2 + dy**2)
                 time = len(self.coordinates[tracker_id]) / self._fps
-
-                speed_labels.append(f"#{tracker_id} {ds / time * MPS_TO_KPH} km/h")
+                speed = round(ds / time * MPS_TO_KPH)
+                label = f"id : #{tracker_id} speed : {speed} km/h"
+                if speed > SPEED_LIMIT:
+                    label = label + " SPEED LIMIT EXCEEDED!!"
+                speed_labels.append(label)
 
         return speed_labels
 

@@ -6,7 +6,7 @@ import supervision as sv
 from speed_estimator import SpeedEstimator
 from model import ModelProxy, YOLO_MODEL_TYPE, FASTER_RCNN_MODEL_TYPE, RETINA_NET_MODEL_TYPE
 from main_constants import SOURCE_VIDEO_PATH, SOURCE, TARGET, CONFIDENCE_THRESHOLD, TARGET_VIDEO_PATH, IOU_THRESHOLD
-
+import math
 
 if __name__ == "__main__":
 
@@ -31,18 +31,19 @@ if __name__ == "__main__":
                 labels = speed_estimator.get_speed_estimates(detections)
 
                 annotated_frame = helper.annotate_frame(frame, labels, detections)
-
-                T_P = helper.get_true_positive_rate(frame_num, detections)
-                mean_true_positive = mean_true_positive + T_P
+                frame_num += 1
+                if frame_num % 5 == 0:
+                    T_P = helper.get_true_positive_rate(detections)
+                    mean_true_positive = mean_true_positive + T_P
                 sink.write_frame(annotated_frame)
                 cv2.imshow("frame", annotated_frame)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 
-                frame_num = frame_num + 1
 
-            mean_true_positive = mean_true_positive / frame_num
+            mean_true_positive = mean_true_positive / math.floor(frame_num / 5)
             model_ratings[model_type] = mean_true_positive
             cv2.destroyAllWindows()
-
+        helper.reset()
+        speed_estimator.reset()
     print(model_ratings)

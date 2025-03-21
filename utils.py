@@ -1,3 +1,5 @@
+import os
+
 import supervision as sv
 import xml.etree.ElementTree as ET
 from typing import Dict
@@ -27,6 +29,7 @@ class Helper:
             trace_length=video_info.fps * 2,
             position=sv.Position.BOTTOM_CENTER,
         )
+        self.frame_count = 0
 
     def filter_detections(self, detections: sv.Detections):
         polygon_zone = sv.PolygonZone(polygon=self.source)
@@ -48,33 +51,53 @@ class Helper:
             scene=annotated_frame, detections=detections, labels=labels
         )
 
-    @staticmethod
-    def load_annotations__ground_truth(frame_num):
-        frame_num = str(frame_num)
-        nulls_to_add = 4 - len(frame_num)
-        frame_num = nulls_to_add * "0" + frame_num
+
+    def load_annotations__ground_truth(self):
+        frame_num = str(self.frame_count).zfill(4)  # Ensures the frame number has leading zeros
         xml_file = f"ground_truth/annotations/frame_{frame_num}.xml"
+
+        if not os.path.exists(xml_file):
+            print(f"File not found: {xml_file}")
+            return []
 
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
         objects = []
         for obj in root.findall("object"):
-            track_id = int(obj.find("track_id").text)
-            bbox = {
-                "xmin": int(obj.find("bndbox/xmin").text),
-                "ymin": int(obj.find("bndbox/ymin").text),
-                "xmax": int(obj.find("bndbox/xmax").text),
-                "ymax": int(obj.find("bndbox/ymax").text),
-            }
-            objects.append({"track_id": track_id, "bbox": bbox})
+            # Find track_id from attributes
+            track_id = None
+            for attr in obj.findall("attributes/attribute"):
+                if attr.find("name").text == "track_id":
+                    track_id = int(attr.find("value").text)
+                    break  # Stop searching once found
 
+            if track_id is None:
+                print("Warning: track_id missing for an object")
+                continue  # Skip this object if track_id is missing
+
+            # Extract bounding box
+            bbox_elem = obj.find("bndbox")
+            if bbox_elem is None:
+                print(f"Warning: Missing bbox for track_id {track_id}")
+                continue
+
+            bbox = {
+                "xmin": int(float(bbox_elem.find("xmin").text)),
+                "ymin": int(float(bbox_elem.find("ymin").text)),
+                "xmax": int(float(bbox_elem.find("xmax").text)),
+                "ymax": int(float(bbox_elem.find("ymax").text)),
+            }
+
+            objects.append({"track_id": track_id, "bbox": bbox})
+        self.frame_count = self.frame_count + 1
+        print('This frame count' + str(self.frame_count))
         return objects
 
 
-    def get_true_positive_rate(self, frame_num, detections):
+    def get_true_positive_rate(self, detections):
 
-        ground_truths = Helper.load_annotations__ground_truth(frame_num)
+        ground_truths = self.load_annotations__ground_truth()
 
         true_poositive_num = 0
 
@@ -102,6 +125,7 @@ class Helper:
 
             true_poositive_num = true_poositive_num + 1 if is_tp else true_poositive_num
 
+        print('THe frame count is ' + str(self.frame_count))
 
         return true_poositive_num / len(ground_truths)
 
@@ -128,3 +152,4 @@ class Helper:
     def reset(self):
         self.byte_track.reset()
         self.validation_tracker = {}
+        self.frame_count = 0

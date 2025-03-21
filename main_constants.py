@@ -10,7 +10,7 @@ SOURCE_VIDEO_PATH = "m6_motorway_trim.mp4"
 TARGET_VIDEO_PATH = "m6_motorway_trim_result.mp4"
 IOU_THRESHOLD = 0.7
 CONFIDENCE_THRESHOLD = 0.5
-
+SPEED_LIMIT = 100
 
 
 TARGET = np.array(
